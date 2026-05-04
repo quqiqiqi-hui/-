@@ -1,37 +1,37 @@
 // 水族文化历法 - 权限管理系统（账号密码登录版）
 
-const AuthManager = {
+const AuthManager = {  
     // 管理员账号密码配置
-    ADMIN_CREDENTIALS: {
-        username: 'admin',
+    ADMIN_CREDENTIALS: {  
+        username: 'admin',  
         password: 'fish2025'
-    },
+    },  
 
     // 初始化权限系统
-    init() {
+    init() {  
         // 检查是否已登录
         const isLoggedIn = localStorage.getItem('shuiAdminLogin');
-        if (!isLoggedIn) {
+        if (!isLoggedIn) {  
             localStorage.setItem('shuiAdminLogin', 'false');
         }
-        this.updateUI();
-    },
+        this.updateUI();  
+    },  
 
     // 验证管理员账号密码
     verifyCredentials(username, password) {
         return username === this.ADMIN_CREDENTIALS.username && 
                password === this.ADMIN_CREDENTIALS.password;
-    },
+    },  
 
     // 管理员登录
-    login(username, password) {
+    login(username, password) {  
         if (this.verifyCredentials(username, password)) {
             localStorage.setItem('shuiAdminLogin', 'true');
-            this.updateUI();
-            return true;
+            this.updateUI();  
+            return true;  
         }
-        return false;
-    },
+        return false;  
+    },  
 
     // 检查是否为管理员（已登录）
     isAdmin() {
