@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>水族文化历法 - 传承千年智慧</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.bootcdn.net/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#2563EB',
+                        secondary: '#3B82F6',
+                        cta: '#F97316',
+                        background: '#F8FAFC',
+                        text: '#1E293B'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .glass-dark {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .water-flow {
+            background: linear-gradient(120deg, #2563EB, #3B82F6, #60A5FA);
+            background-size: 200% 200%;
+            animation: flow 3s ease infinite;
+        }
+        @keyframes flow {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .calendar-day:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.2);
+        }
+        .cultural-card {
+            transition: all 0.3s ease;
+        }
+        .cultural-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+        .tab-active {
+            background: linear-gradient(135deg, #2563EB, #3B82F6);
+            color: white;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 via-white to-orange-50 min-h-screen">
+    <!-- 导航栏 -->
+    <nav class="fixed top-4 left-4 right-4 z-50 glass rounded-2xl shadow-lg">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 water-flow rounded-xl flex items-center justify-center">
+                        <i class="fas fa-water text-white text-lg"></i>
+                    </div>
+                    <h1 class="text-xl font-bold text-text">水族文化历法</h1>
+                </div>
+                <div class="hidden md:flex items-center space-x-2">
+                    <button onclick="switchTab('calendar')" id="tab-calendar" class="tab-btn px-4 py-2 rounded-xl cursor-pointer transition-all duration-200 tab-active">
+                        <i class="fas fa-calendar-alt mr-2"></i>历法展示
+                    </button>
+                    <button onclick="switchTab('culture')" id="tab-culture" class="tab-btn px-4 py-2 rounded-xl cursor-pointer transition-all duration-200 hover:bg-blue-100">
+                        <i class="fas fa-book mr-2"></i>文化介绍
+                    </button>
+                    <button onclick="switchTab('interactive')" id="tab-interactive" class="tab-btn px-4 py-2 rounded-xl cursor-pointer transition-all duration-200 hover:bg-blue-100">
+                        <i class="fas fa-magic mr-2"></i>互动体验
+                    </button>
+                    <button onclick="switchTab('admin')" id="tab-admin" class="tab-btn px-4 py-2 rounded-xl cursor-pointer transition-all duration-200 hover:bg-blue-100 admin-nav-btn" style="display: none;">
+                        <i class="fas fa-cog mr-2"></i>管理后台
+                    </button>
+                    <!-- 登录状态容器 -->
+                    <div id="login-status-container" class="ml-4 pl-4 border-l border-gray-200">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+                <button class="md:hidden cursor-pointer" onclick="toggleMobileMenu()">
+                    <i class="fas fa-bars text-2xl text-text"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 移动端菜单 -->
+    <div id="mobile-menu" class="hidden fixed top-20 left-4 right-4 z-40 glass rounded-2xl shadow-lg md:hidden">
+        <div class="p-4 space-y-2">
+
+            <button onclick="switchTab('culture'); toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl cursor-pointer hover:bg-blue-100 transition-all">
+                <i class="fas fa-book mr-2"></i>文化介绍
+            </button>
+            <button onclick="switchTab('interactive'); toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl cursor-pointer hover:bg-blue-100 transition-all">
+                <i class="fas fa-magic mr-2"></i>互动体验
+            </button>
+            <button onclick="switchTab('admin'); toggleMobileMenu()" class="w-full text-left px-4 py-3 rounded-xl cursor-pointer hover:bg-blue-100 transition-all admin-nav-btn" style="display: none;">
+                <i class="fas fa-cog mr-2"></i>管理后台
+            </button>
+            <!-- 移动端登录状态 -->
+            <div id="mobile-login-status" class="px-4 py-3 border-t border-gray-200 mt-2">
+                <!-- 动态生成 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 主内容区 -->
+    <main class="pt-32 pb-20 px-6 max-w-7xl mx-auto">
+        <!-- 历法展示页 -->
+        <section id="calendar-section" class="tab-content">
+            <div class="glass rounded-3xl p-8 shadow-xl mb-8">
+                <div class="flex flex-col md:flex-row items-center justify-between mb-8">
+                    <h2 class="text-3xl font-bold text-text mb-4 md:mb-0">
+                        <i class="fas fa-calendar-alt text-primary mr-3"></i>水族历法
+                    </h2>
+                    <div class="flex items-center space-x-4">
+                        <button onclick="changeYear(-1)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-200 cursor-pointer transition-all flex items-center justify-center">
+                            <i class="fas fa-chevron-left text-primary"></i>
+                        </button>
+                        <span id="current-year" class="text-2xl font-bold text-text w-32 text-center">2024 年</span>
+                        <button onclick="changeYear(1)" class="w-10 h-10 rounded-full bg-blue-100 hover:bg-blue-200 cursor-pointer transition-all flex items-center justify-center">
+                            <i class="fas fa-chevron-right text-primary"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 月份选择 -->
+                <div class="grid grid-cols-3 md:grid-cols-6 gap-3 mb-8">
+                    <button onclick="selectMonth(0)" class="month-btn px-4 py-3 rounded-xl bg-blue-100 hover:bg-blue-200 cursor-pointer transition-all font-medium">正月</button>
+                    <button onclick="selectMonth(1)" class="month-btn px-4 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all font-medium">二月</button>
+                    <button onclick="selectMonth(2)" class="month-btn px-4 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all font-medium">三月</button>
+                    <button onclick="selectMonth(3)" class="month-btn px-4 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all font-medium">四月</button>
+                    <button onclick="selectMonth(4)" class="month-btn px-4 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all font-medium">五月</button>
+                    <button onclick="selectMonth(5)" class="month-btn px-4 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all font-medium">六月</button>
+                    <button onclick="selectMonth(6)" class="month-btn px-4 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all font-medium">七月</button>
+                    <button onclick="selectMonth(7)" class="month-btn px-4 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all font-medium">八月</button>
+                    <button onclick="selectMonth(8)" class="month-btn px-4 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all font-medium">九月</button>
+                    <button onclick="selectMonth(9)" class="month-btn px-4 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all font-medium">十月</button>
+                    <button onclick="selectMonth(10)" class="month-btn px-4 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all font-medium">冬月</button>
+                    <button onclick="selectMonth(11)" class="month-btn px-4 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all font-medium">腊月</button>
+                </div>
+
+                <!-- 日历网格 -->
+                <div class="grid grid-cols-7 gap-2 mb-6">
+                    <div class="text-center font-bold text-gray-500 py-2">日</div>
+                    <div class="text-center font-bold text-gray-500 py-2">一</div>
+                    <div class="text-center font-bold text-gray-500 py-2">二</div>
+                    <div class="text-center font-bold text-gray-500 py-2">三</div>
+                    <div class="text-center font-bold text-gray-500 py-2">四</div>
+                    <div class="text-center font-bold text-gray-500 py-2">五</div>
+                    <div class="text-center font-bold text-gray-500 py-2">六</div>
+                </div>
+                <div id="calendar-grid" class="grid grid-cols-7 gap-2">
+                    <!-- 动态生成日期 -->
+                </div>
+
+                <!-- 节气与节日提示 -->
+                <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 to-orange-50 rounded-2xl">
+                    <h3 class="text-lg font-bold text-text mb-4">
+                        <i class="fas fa-info-circle text-primary mr-2"></i>本月重要节点
+                    </h3>
+                    <div id="festival-info" class="space-y-3">
+                        <!-- 动态生成节日信息 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 文化介绍页 -->
+        <section id="culture-section" class="tab-content hidden">
+            <div class="mb-8">
+                <h2 class="text-3xl font-bold text-text mb-6">
+                    <i class="fas fa-book-open text-primary mr-3"></i>水族文化宝库
+                </h2>
+                
+                <!-- 分类筛选 -->
+                <div class="flex flex-wrap gap-3 mb-8">
+                    <button onclick="filterCulture('all')" class="culture-filter px-6 py-3 rounded-xl bg-blue-600 text-white cursor-pointer transition-all">全部</button>
+                    <button onclick="filterCulture('festival')" class="culture-filter px-6 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all">节日庆典</button>
+                    <button onclick="filterCulture('custom')" class="culture-filter px-6 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all">民俗习惯</button>
+                    <button onclick="filterCulture('art')" class="culture-filter px-6 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all">传统艺术</button>
+                    <button onclick="filterCulture('food')" class="culture-filter px-6 py-3 rounded-xl bg-white hover:bg-blue-100 cursor-pointer transition-all">特色美食</button>
+                </div>
+
+                <!-- 文化卡片瀑布流 -->
+                <div id="culture-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- 动态生成文化卡片 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 互动体验页 -->
+        <section id="interactive-section" class="tab-content hidden">
+            <div class="glass rounded-3xl p-8 shadow-xl max-w-4xl mx-auto">
+                <h2 class="text-3xl font-bold text-center text-text mb-8">
+                    <i class="fas fa-magic text-primary mr-3"></i>水族历法转换
+                </h2>
+                
+                <div class="grid md:grid-cols-2 gap-8">
+                    <!-- 输入区域 -->
+                    <div class="space-y-6">
+                        <div>
+                            <label class="block text-sm font-medium text-text mb-2">公历生日</label>
+                            <input type="date" id="gregorian-date" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none transition-all">
+                        </div>
+                        
+                        <button onclick="convertCalendar()" class="w-full water-flow text-white font-bold py-4 rounded-xl cursor-pointer transition-all hover:shadow-lg">
+                            <i class="fas fa-exchange-alt mr-2"></i>转换为水族历
+                        </button>
+
+                        <div id="conversion-result" class="hidden p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl">
+                            <h3 class="text-lg font-bold text-text mb-4">转换结果</h3>
+                            <div class="space-y-3">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">水族年份：</span>
+                                    <span id="shui-year" class="font-bold text-primary"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">水族月份：</span>
+                                    <span id="shui-month" class="font-bold text-primary"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">水族日期：</span>
+                                    <span id="shui-day" class="font-bold text-primary"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">生肖：</span>
+                                    <span id="shui-zodiac" class="font-bold text-cta"></span>
+                                </div>
+                                <div class="pt-4 border-t border-gray-200">
+                                    <p id="shui-blessing" class="text-center text-lg font-medium text-text italic"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 海报预览 -->
+                    <div class="space-y-6">
+                        <div id="poster-preview" class="hidden">
+                            <div class="aspect-[3/4] water-flow rounded-2xl p-8 flex flex-col items-center justify-center text-white shadow-2xl">
+                                <i class="fas fa-water text-6xl mb-6 opacity-80"></i>
+                                <h3 class="text-2xl font-bold mb-4">水族历法祝福</h3>
+                                <div class="text-center space-y-2">
+                                    <p id="poster-date" class="text-lg"></p>
+                                    <p id="poster-blessing" class="text-xl font-bold"></p>
+                                </div>
+                                <div class="mt-8 pt-6 border-t border-white/30 w-full text-center">
+                                    <p class="text-sm opacity-80">水族文化历法 · 传承千年智慧</p>
+                                </div>
+                            </div>
+                            <button onclick="downloadPoster()" class="w-full mt-4 bg-cta hover:bg-orange-600 text-white font-bold py-4 rounded-xl cursor-pointer transition-all">
+                                <i class="fas fa-download mr-2"></i>下载祝福海报
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 管理后台 -->
+        <section id="admin-section" class="tab-content hidden">
+            <div class="glass rounded-3xl p-8 shadow-xl">
+                <h2 class="text-3xl font-bold text-text mb-8">
+                    <i class="fas fa-cog text-primary mr-3"></i>管理后台
+                </h2>
+
+                <!-- 数据管理选项卡 -->
+                <div class="flex space-x-4 mb-8 border-b border-gray-200">
+                    <button onclick="switchAdminTab('festivals')" id="admin-festivals" class="admin-tab px-6 py-3 cursor-pointer transition-all tab-active rounded-t-xl">
+                        <i class="fas fa-calendar-check mr-2"></i>节日管理
+                    </button>
+                    <button onclick="switchAdminTab('culture')" id="admin-culture" class="admin-tab px-6 py-3 cursor-pointer transition-all hover:bg-gray-100 rounded-t-xl">
+                        <i class="fas fa-book mr-2"></i>文化条目
+                    </button>
+                </div>
+
+                <!-- 节日管理 -->
+                <div id="admin-festivals-panel" class="admin-panel">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-text">节日列表</h3>
+                        <button onclick="showAddFestivalModal()" class="bg-primary hover:bg-blue-700 text-white px-6 py-3 rounded-xl cursor-pointer transition-all">
+                            <i class="fas fa-plus mr-2"></i>添加节日
+                        </button>
+                    </div>
+                    <div id="festival-list" class="space-y-4">
+                        <!-- 动态生成节日列表 -->
+                    </div>
+                </div>
+
+                <!-- 文化条目管理 -->
+                <div id="admin-culture-panel" class="admin-panel hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-xl font-bold text-text">文化条目</h3>
+                        <button onclick="showAddCultureModal()" class="bg-primary hover:bg-blue-700 text-white px-6 py-3 rounded-xl cursor-pointer transition-all">
+                            <i class="fas fa-plus mr-2"></i>添加条目
+                        </button>
+                    </div>
+                    <div id="culture-list" class="space-y-4">
+                        <!-- 动态生成文化条目列表 -->
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 节日详情弹窗 -->
+    <div id="festival-detail-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 overflow-y-auto">
+        <div class="glass rounded-3xl p-8 max-w-2xl w-full my-8">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-text">节日详情</h3>
+                <button onclick="closeFestivalDetailModal()" class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 cursor-pointer transition-all flex items-center justify-center">
+                    <i class="fas fa-times text-gray-600"></i>
+                </button>
+            </div>
+            <div id="festival-detail-content" class="max-h-[70vh] overflow-y-auto">
+                <!-- 动态生成节日详情内容 -->
+            </div>
+        </div>
+    </div>
+
+    <!-- 普通日期信息弹窗 -->
+    <div id="day-info-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="glass rounded-3xl p-8 max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-text">日期信息</h3>
+                <button onclick="closeDayInfoModal()" class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 cursor-pointer transition-all flex items-center justify-center">
+                    <i class="fas fa-times text-gray-600"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div class="p-4 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <i class="fas fa-calendar-alt text-primary text-xl"></i>
+                        <span class="text-gray-600">公历日期</span>
+                    </div>
+                    <p id="day-info-date" class="text-xl font-bold text-text ml-8"></p>
+                </div>
+                <div class="p-4 bg-gradient-to-br from-orange-50 to-red-50 rounded-xl">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <i class="fas fa-moon text-cta text-xl"></i>
+                        <span class="text-gray-600">水族历法</span>
+                    </div>
+                    <p id="day-info-lunar" class="text-xl font-bold text-text ml-8"></p>
+                </div>
+                <div class="pt-4">
+                    <p class="text-center text-gray-500 text-sm">点击其他日期查看详情，或关闭此窗口</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加/编辑节日模态框 -->
+    <div id="add-festival-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="glass rounded-3xl p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <h3 id="festival-modal-title" class="text-2xl font-bold text-text mb-6">添加新节日</h3>
+            <form id="festival-form" onsubmit="addFestival(event)" class="space-y-4">
+                <div class="grid md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-text mb-2">节日名称</label>
+                        <input type="text" id="festival-name" required class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text mb-2">农历月份</label>
+                        <select id="festival-month" required class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none">
+                            <option value="0">正月</option>
+                            <option value="1">二月</option>
+                            <option value="2">三月</option>
+                            <option value="3">四月</option>
+                            <option value="4">五月</option>
+                            <option value="5">六月</option>
+                            <option value="6">七月</option>
+                            <option value="7">八月</option>
+                            <option value="8">九月</option>
+                            <option value="9">十月</option>
+                            <option value="10">冬月</option>
+                            <option value="11">腊月</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text mb-2">农历日期</label>
+                    <input type="number" id="festival-day" min="1" max="30" required class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text mb-2">节日简介</label>
+                    <textarea id="festival-desc" rows="2" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none" placeholder="简要描述节日"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text mb-2">节日起源</label>
+                    <textarea id="festival-origin" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none" placeholder="节日的历史起源"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text mb-2">传统习俗</label>
+                    <textarea id="festival-customs" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none" placeholder "节日期间的传统活动和习俗"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text mb-2">传说故事</label>
+                    <textarea id="festival-legends" rows="3" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none" placeholder="与节日相关的传说或故事"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text mb-2">图片 URL（多个用逗号分隔）</label>
+                    <input type="text" id="festival-images" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none" placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg">
+                </div>
+                <div class="flex space-x-4 pt-4">
+                    <button type="submit" class="flex-1 bg-primary hover:bg-blue-700 text-white font-bold py-3 rounded-xl cursor-pointer transition-all">保存</button>
+                    <button type="button" onclick="closeAddFestivalModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-text font-bold py-3 rounded-xl cursor-pointer transition-all">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 添加文化条目模态框 -->
+    <div id="add-culture-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="glass rounded-3xl p-8 max-w-md w-full">
+            <h3 class="text-2xl font-bold text-text mb-6">添加文化条目</h3>
+            <form onsubmit="addCulture(event)" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-text mb-2">标题</label>
+                    <input type="text" id="culture-title" required class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text mb-2">分类</label>
+                    <select id="culture-category" required class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none">
+                        <option value="festival">节日庆典</option>
+                        <option value="custom">民俗习惯</option>
+                        <option value="art">传统艺术</option>
+                        <option value="food">特色美食</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text mb-2">图片 URL</label>
+                    <input type="url" id="culture-image" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text mb-2">内容描述</label>
+                    <textarea id="culture-content" rows="4" required class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none"></textarea>
+                </div>
+                <div class="flex space-x-4 pt-4">
+                    <button type="submit" class="flex-1 bg-primary hover:bg-blue-700 text-white font-bold py-3 rounded-xl cursor-pointer transition-all">保存</button>
+                    <button type="button" onclick="closeAddCultureModal()" class="flex-1 bg-gray-200 hover:bg-gray-300 text-text font-bold py-3 rounded-xl cursor-pointer transition-all">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 管理员登录模态框 -->
+    <div id="login-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+        <div class="glass rounded-3xl p-8 max-w-md w-full">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-bold text-text">管理员登录</h3>
+                <button onclick="closeLoginModal()" class="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 cursor-pointer transition-all flex items-center justify-center">
+                    <i class="fas fa-times text-gray-600"></i>
+                </button>
+            </div>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-text mb-2">账号</label>
+                    <input type="text" id="admin-username" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none" placeholder="请输入管理员账号">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text mb-2">密码</label>
+                    <input type="password" id="admin-password" class="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-primary focus:outline-none" placeholder="请输入密码">
+                </div>
+                <button onclick="loginWithCredentials()" class="w-full water-flow text-white font-bold py-3 rounded-xl cursor-pointer transition-all hover:shadow-lg">
+                    <i class="fas fa-sign-in-alt mr-2"></i>登录
+                </button>
+                <p class="text-center text-sm text-gray-500">游客可直接浏览内容，仅管理员需要登录</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
+
+<!-- 移动端登录状态更新脚本 -->
+<script>
+function updateMobileLoginStatus() {
+    const container = document.getElementById('mobile-login-status');
+    if (!container) return;
+    
+    const isAdmin = AuthManager.isAdmin();
+    
+    if (!isAdmin) {
+        container.innerHTML = `
+            <button onclick="showLoginModal()" class="w-full px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-xl cursor-pointer transition-all">
+                <i class="fas fa-sign-in-alt mr-2"></i>管理员登录
+            </button>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="flex items-center justify-between">
+                <span class="px-3 py-1 rounded-full text-sm font-medium bg-purple-100 text-purple-600">
+                    <i class="fas fa-user-shield mr-1"></i>管理员
+                </span>
+                <button onclick="AuthManager.logout(); updateMobileLoginStatus();" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl cursor-pointer transition-all">
+                    <i class="fas fa-sign-out-alt"></i> 退出
+                </button>
+            </div>
+        `;
+    }
+}
+</script>
